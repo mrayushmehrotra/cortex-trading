@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "cortex-trading",
   "private": true,
   "scripts": {
     "build": "turbo run build",
