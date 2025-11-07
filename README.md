@@ -1,27 +1,24 @@
----
-
-```markdown
 # 💹 Retail Trading Platform — V1 Planning & Architecture  
-**Prepared by:** Senior Product Engineer & Technical Architect  
-**Scope:** End-to-end planning for a cross-platform trading platform (Web + Mobile) built on **TanStack Start**, powered by **Zerodha API**, and architected for real-time performance, developer experience, and scalability.
+**Prepared by:** Rishabh Mehrotra & Ayush Mehrotra (Two Cracked Devs)  
+**Scope:** End-to-end planning for a cross-platform trading platform (Web + Mobile) built on **TanStack Start**, powered by **Zerodha Kite Connect API**, and architected for real-time performance, developer experience, and scalability.
 
 ---
 
 ## 🧭 Executive Summary
 
-**Retail Trading Platform (V1)** is a modern trading frontend and execution layer built for retail and independent developers.  
+**Retail Trading Platform (V1)** is a modern trading frontend and execution layer built for retail traders and independent developers.  
 It delivers:
 - Real-time quotes and charting
-- Market/limit/stop orders via **Zerodha Kite API**
+- Market, limit, and stop orders via **Zerodha Kite Connect API**
 - Wallet and P&L management
 - Strategy execution (Convex-powered backend)
 - AI-driven insights for smarter decision making
 
 V1 emphasizes:
-- **Developer accessibility** (no broker authorization hurdles)
-- **Speed & reliability** (low-latency order routing)
-- **Modular scalability** (designed as a Turborepo)
-- **Hackathon readiness** — deployable via **Cloudflare**, **Netlify**, and **Convex**
+- **Developer accessibility** — simplified OAuth integration; no broker whitelisting needed  
+- **Speed & reliability** — low-latency order routing and WebSocket streams  
+- **Modular scalability** — designed as a **Turborepo** monorepo  
+- **Serverless deployment** — built for **Cloudflare**, **Netlify**, and **Convex**
 
 ---
 
@@ -29,11 +26,11 @@ V1 emphasizes:
 
 | Metric | Target |
 |--------|--------|
-| Quotes fan-out latency | p95 ≤ 200ms (in-region) |
-| Order submission (API accept) | p95 ≤ 100ms |
-| WebSocket reconnect | < 3s |
-| Dropped sessions | < 0.1%/hr |
-| API uptime | 99.9% |
+| Quotes fan-out latency | p95 ≤ 200 ms (in-region) |
+| Order submission (API accept) | p95 ≤ 100 ms |
+| WebSocket reconnect | < 3 s |
+| Dropped sessions | < 0.1 %/hr |
+| API uptime | 99.9 % |
 | Recovery Point Objective (RPO) | ≤ 5 min |
 | Recovery Time Objective (RTO) | ≤ 15 min |
 
@@ -50,52 +47,52 @@ V1 emphasizes:
 6. Sandbox trading environment (demo mode) for new users.
 
 ### Non-Goals (V1)
-- No internal matching engine or liquidity pool.
-- No derivative/futures/options support.
-- No KYC or compliance integrations (handled by broker).
-- No hosted bot runtimes or social trading feed (staged for V2).
+- No internal matching engine or liquidity pool.  
+- No derivative/futures/options support.  
+- No KYC or compliance integrations (handled by broker).  
+- No hosted bot runtimes or social trading feed (planned for V2).  
 
 ---
 
 ## 🧩 Functional Requirements
 
 ### End Users
-- **Authentication:** Clerk or Magic Link (email/password + TOTP).
-- **Accounts:** demo & live (linked via Zerodha OAuth).
-- **Instruments:** Stocks, ETFs, and indices available via Zerodha API.
-- **Market Data:** Level-1 quotes, OHLCV, depth (via Kite WebSocket).
-- **Orders:** Market, Limit, Stop; modify/cancel supported; GTC & IOC.
-- **Portfolio:** Balances, P&L, order history, and real-time position updates.
-- **Alerts:** Price/PNL/fill via WebSocket + Email.
-- **Charts:** Lightweight-Charts or TradingView, with common indicators (RSI, EMA, MACD, Bollinger Bands).
-- **Demo Trading:** Isolated sandbox with fake balance for new users.
+- **Authentication:** Clerk or Magic Link (email/password + TOTP).  
+- **Accounts:** demo & live (linked via Zerodha OAuth).  
+- **Instruments:** Stocks, ETFs, and indices via Kite Connect API.  
+- **Market Data:** Level-1 quotes, OHLCV, and depth (via Kite WebSocket).  
+- **Orders:** Market, Limit, Stop; modify/cancel supported; GTC & IOC.  
+- **Portfolio:** Balances, P&L, order history, and real-time updates.  
+- **Alerts:** Price, P&L, fill via WebSocket + Email.  
+- **Charts:** Lightweight-Charts or TradingView, with indicators (RSI, EMA, MACD, Bollinger Bands).  
+- **Demo Trading:** Isolated sandbox with simulated balance.  
 
 ### Admin & Support (optional)
-- User management, error logs, and simulated trade review.
-- Strategy monitoring dashboard with live Convex logs.
-- Wallet/ledger adjustments with audit trail.
+- User management, error logs, and simulated trade review.  
+- Strategy monitoring dashboard with live Convex logs.  
+- Wallet/ledger adjustments with audit trail.  
 
 ---
 
 ## 🛠️ Non-Functional Requirements
 
-- **Scalability:** Target 50K concurrent WebSocket clients (horizontal fan-out).
-- **Latency:** <200ms market tick to client display; <100ms API response.
-- **Security:** HTTPS/WSS everywhere; JWT auth; webhook signing.
-- **Resilience:** Graceful degradation on Zerodha API errors.
-- **Observability:** Structured logs, traces, and metrics (OpenTelemetry).
-- **Cost Efficiency:** Serverless-first design (Convex + Cloudflare).
+- **Scalability:** Target 50 K concurrent WebSocket clients (horizontal fan-out).  
+- **Latency:** < 200 ms tick-to-client; < 100 ms API response.  
+- **Security:** HTTPS/WSS everywhere; JWT auth; webhook signing.  
+- **Resilience:** Graceful degradation on Zerodha API errors.  
+- **Observability:** Structured logs, traces, and metrics via **OpenTelemetry**.  
+- **Cost Efficiency:** Serverless-first design (**Convex + Cloudflare Workers**).  
 
 ---
 
 ## ⚡ Edge Cases & Risk Handling
 
-- **Zerodha downtime:** Circuit breaker fallback → read-only mode.
-- **Price gaps/slippage:** Display warning before order execution.
-- **Duplicate requests:** Idempotency-Key per order placement.
-- **WebSocket churn:** Auto-reconnect with exponential backoff.
-- **Session expiry:** Background token refresh for seamless UX.
-- **Clock skew:** All timestamps UTC; synced via NTP.
+- **Zerodha downtime:** Circuit breaker fallback → read-only mode.  
+- **Price gaps/slippage:** Display warning before order execution.  
+- **Duplicate requests:** Idempotency-Key per order placement.  
+- **WebSocket churn:** Auto-reconnect with exponential backoff.  
+- **Session expiry:** Background token refresh for seamless UX.  
+- **Clock skew:** All timestamps UTC; synced via NTP.  
 
 ---
 
@@ -103,9 +100,9 @@ V1 emphasizes:
 
 ### Architecture Overview
 
-Clients connect via **HTTPS/WSS** to a **Cloudflare API Gateway** that proxies requests to Convex services and Zerodha APIs.
+Clients connect via **HTTPS/WSS** to a **Cloudflare API Gateway** that proxies requests to Convex services and the Zerodha APIs.
 
-```
+
 
 [Clients (Web/Mobile)]
 ↓
